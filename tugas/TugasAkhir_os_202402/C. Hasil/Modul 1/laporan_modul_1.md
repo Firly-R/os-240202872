@@ -11,17 +11,11 @@
 
 ## 📌 Deskripsi Singkat Tugas
 
-Tuliskan deskripsi singkat dari modul yang Anda kerjakan. Misalnya:
-
 * **Modul 1 – System Call dan Instrumentasi Kernel**:
   Menambahkan dua system call baru, yaitu `getpinfo()` untuk melihat proses yang aktif dan `getReadCount()` untuk menghitung jumlah pemanggilan `read()` sejak boot.
 ---
 
 ## 🛠️ Rincian Implementasi
-
-Tuliskan secara ringkas namun jelas apa yang Anda lakukan:
-
-### Contoh untuk Modul 1:
 
 * Menambahkan dua system call baru di file `sysproc.c` dan `syscall.c`
 * Mengedit `user.h`, `usys.S`, dan `syscall.h` untuk mendaftarkan syscall
@@ -32,45 +26,34 @@ Tuliskan secara ringkas namun jelas apa yang Anda lakukan:
 
 ## ✅ Uji Fungsionalitas
 
-Tuliskan program uji apa saja yang Anda gunakan, misalnya:
-
 * `ptest`: untuk menguji `getpinfo()`
 * `rtest`: untuk menguji `getReadCount()`
-* `cowtest`: untuk menguji fork dengan Copy-on-Write
-* `shmtest`: untuk menguji `shmget()` dan `shmrelease()`
-* `chmodtest`: untuk memastikan file `read-only` tidak bisa ditulis
-* `audit`: untuk melihat isi log system call (jika dijalankan oleh PID 1)
 
 ---
 
 ## 📷 Hasil Uji
 
-Lampirkan hasil uji berupa screenshot atau output terminal. Contoh:
-
-### 📍 Contoh Output `cowtest`:
+### 📍 Contoh Output `ptest`:
 
 ```
-Child sees: Y
-Parent sees: X
+PID    MEM    NAME
+1      12288  init
+2      16384  sh
+3      12288  ptest
 ```
 
-### 📍 Contoh Output `shmtest`:
+### 📍 Contoh Output `rtest`:
 
 ```
-Child reads: A
-Parent reads: B
-```
-
-### 📍 Contoh Output `chmodtest`:
-
-```
-Write blocked as expected
+Read Count Sebelum:  12
+hello
+Read Count Sebelum:  13
 ```
 
 Jika ada screenshot:
 
-```
-![hasil cowtest](./screenshots/cowtest_output.png)
+```<img width="1919" height="1079" alt="modul1" src="https://github.com/user-attachments/assets/eacb07fb-c997-44f3-9a68-0bea60158a69" />
+
 ```
 
 ---
