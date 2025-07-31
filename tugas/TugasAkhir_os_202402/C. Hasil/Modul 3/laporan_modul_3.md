@@ -11,8 +11,6 @@
 
 ## 📌 Deskripsi Singkat Tugas
 
-Tuliskan deskripsi singkat dari modul yang Anda kerjakan. Misalnya:
-
 * **Modul 3 – Manajemen Memori Tingkat Lanjut (xv6-public x86)**:
 1. Copy-on-Write (CoW) Fork, yang membuat fork() lebih efisien dengan menunda penyalinan halaman memori sampai terjadi penulisan (write).
 
