@@ -2,50 +2,48 @@
 
 **Mata Kuliah**: Sistem Operasi
 **Semester**: Genap / Tahun Ajaran 2024–2025
-**Nama**: `<Nama Lengkap>`
-**NIM**: `<Nomor Induk Mahasiswa>`
+**Nama**: `Muhammad Firly Ramadhan`
+**NIM**: `240202872`
 **Modul yang Dikerjakan**:
-`(Contoh: Modul 1 – System Call dan Instrumentasi Kernel)`
+`(Modul 3 – Manajemen Memori Tingkat Lanjut (xv6-public x86))`
 
 ---
 
 ## 📌 Deskripsi Singkat Tugas
 
-Tuliskan deskripsi singkat dari modul yang Anda kerjakan. Misalnya:
+* **Modul 3 – Manajemen Memori Tingkat Lanjut (xv6-public x86)**:
+1. Copy-on-Write (CoW) Fork, yang membuat fork() lebih efisien dengan menunda penyalinan halaman memori sampai terjadi penulisan (write).
 
-* **Modul 1 – System Call dan Instrumentasi Kernel**:
-  Menambahkan dua system call baru, yaitu `getpinfo()` untuk melihat proses yang aktif dan `getReadCount()` untuk menghitung jumlah pemanggilan `read()` sejak boot.
+2. Shared Memory (shmget & shmrelease), yang memungkinkan proses saling berbagi halaman memori menggunakan sistem refcount dan key, mirip seperti System V shared memory.
 ---
 
 ## 🛠️ Rincian Implementasi
 
-Tuliskan secara ringkas namun jelas apa yang Anda lakukan:
+### Copy-on-Write Fork
 
-### Contoh untuk Modul 1:
-
-* Menambahkan dua system call baru di file `sysproc.c` dan `syscall.c`
-* Mengedit `user.h`, `usys.S`, dan `syscall.h` untuk mendaftarkan syscall
-* Menambahkan struktur `struct pinfo` di `proc.h`
-* Menambahkan counter `readcount` di kernel
-* Membuat dua program uji: `ptest.c` dan `rtest.c`
----
-
-## ✅ Uji Fungsionalitas
-
-Tuliskan program uji apa saja yang Anda gunakan, misalnya:
-
-* `ptest`: untuk menguji `getpinfo()`
-* `rtest`: untuk menguji `getReadCount()`
-* `cowtest`: untuk menguji fork dengan Copy-on-Write
-* `shmtest`: untuk menguji `shmget()` dan `shmrelease()`
-* `chmodtest`: untuk memastikan file `read-only` tidak bisa ditulis
-* `audit`: untuk melihat isi log system call (jika dijalankan oleh PID 1)
+1. Tambahkan `ref_count[]`, `incref()`, dan `decref()` di `vm.c`.
+2. Tambahkan flag `PTE_COW` di `mmu.h`.
+3. Ganti `copyuvm()` menjadi `cowuvm()` untuk sharing halaman read-only dan tambah refcount.
+4. Ubah `fork()` di `proc.c` agar memakai `cowuvm()`.
+5. Tangani page fault `T_PGFLT` di `trap.c` untuk mendeteksi `PTE_COW`, lalu salin halaman saat write.
 
 ---
+
+### Shared Memory
+
+1. Tambahkan tabel `shmtab[]` di `vm.c` untuk menyimpan key, frame, dan refcount.
+2. Buat `sys_shmget()` di `sysproc.c` untuk alokasi atau akses shared memory berdasarkan key.
+3. Buat `sys_shmrelease()` untuk mengurangi refcount dan membebaskan jika nol.
+
+---
+
+### Uji Fungsionalitas
+
+1. Buat `cowtest.c` untuk uji `fork()` dan copy-on-write.
+2. Buat `shmtest.c` untuk uji shared memory antar proses.
+
 
 ## 📷 Hasil Uji
-
-Lampirkan hasil uji berupa screenshot atau output terminal. Contoh:
 
 ### 📍 Contoh Output `cowtest`:
 
@@ -60,34 +58,24 @@ Parent sees: X
 Child reads: A
 Parent reads: B
 ```
-
-### 📍 Contoh Output `chmodtest`:
-
-```
-Write blocked as expected
-```
-
-Jika ada screenshot:
-
-```
-![hasil cowtest](./screenshots/cowtest_output.png)
-```
-
 ---
 
 ## ⚠️ Kendala yang Dihadapi
 
-Tuliskan kendala (jika ada), misalnya:
-
-* Salah implementasi `page fault` menyebabkan panic
-* Salah memetakan alamat shared memory ke USERTOP
-* Proses biasa bisa akses audit log (belum ada validasi PID)
+1. Refcount tidak akurat jika `incref()`/`decref()` tidak dipanggil konsisten.
+2. Page fault tidak tertangani jika `PTE_COW` tidak terdeteksi di `trap.c`.
+3. Memory leak bisa terjadi jika halaman tidak dibebaskan saat refcount nol.
+4. `fork()` gagal jika `cowuvm()` tidak memetakan halaman dengan benar.
+5. Data rusak jika `memmove()` gagal menyalin isi halaman saat fault.
+6. Shared memory gagal dimapping jika `shmtab` penuh atau `key` tidak ditemukan.
+7. Alamat mapping `USERTOP - (i+1)*PGSIZE` bisa bentrok dengan heap atau stack.
+8. Frame tidak dibebaskan jika `shmrelease()` tidak menurunkan refcount dengan benar.
+9. Race condition bisa muncul saat dua proses mengakses `shmtab` bersamaan.
+10. Proses hasil `fork()` bisa kehilangan akses shared memory jika `shmtab` tidak disinkronkan.
 
 ---
 
 ## 📚 Referensi
-
-Tuliskan sumber referensi yang Anda gunakan, misalnya:
 
 * Buku xv6 MIT: [https://pdos.csail.mit.edu/6.828/2018/xv6/book-rev11.pdf](https://pdos.csail.mit.edu/6.828/2018/xv6/book-rev11.pdf)
 * Repositori xv6-public: [https://github.com/mit-pdos/xv6-public](https://github.com/mit-pdos/xv6-public)

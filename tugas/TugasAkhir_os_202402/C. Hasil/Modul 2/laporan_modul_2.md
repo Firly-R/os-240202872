@@ -2,32 +2,34 @@
 
 **Mata Kuliah**: Sistem Operasi
 **Semester**: Genap / Tahun Ajaran 2024–2025
-**Nama**: `<Nama Lengkap>`
-**NIM**: `<Nomor Induk Mahasiswa>`
+**Nama**: `Muhammad Firly Ramadhan`
+**NIM**: `240202872`
 **Modul yang Dikerjakan**:
-`(Contoh: Modul 1 – System Call dan Instrumentasi Kernel)`
+`(Modul 2 - Penjadwalan CPU Non-Preemptive Berbasis Prioritas)`
 
 ---
 
 ## 📌 Deskripsi Singkat Tugas
 
-Tuliskan deskripsi singkat dari modul yang Anda kerjakan. Misalnya:
-
-* **Modul 1 – System Call dan Instrumentasi Kernel**:
-  Menambahkan dua system call baru, yaitu `getpinfo()` untuk melihat proses yang aktif dan `getReadCount()` untuk menghitung jumlah pemanggilan `read()` sejak boot.
+* **Modul 2 - Penjadwalan CPU Non-Preemptive Berbasis Prioritas**:
+  Modul ini membahas cara mengubah algoritma penjadwalan pada xv6 dari Round Robin menjadi Non-Preemptive Priority Scheduling. Perubahan utama meliputi penambahan field priority pada struktur proses, implementasi syscall set_priority(int), dan modifikasi fungsi scheduler() agar menjalankan proses dengan prioritas tertinggi terlebih dahulu. Disediakan juga program uji (ptest.c) untuk memverifikasi bahwa proses dengan prioritas lebih tinggi dieksekusi lebih dulu.
 ---
 
 ## 🛠️ Rincian Implementasi
 
-Tuliskan secara ringkas namun jelas apa yang Anda lakukan:
-
-### Contoh untuk Modul 1:
-
-* Menambahkan dua system call baru di file `sysproc.c` dan `syscall.c`
-* Mengedit `user.h`, `usys.S`, dan `syscall.h` untuk mendaftarkan syscall
-* Menambahkan struktur `struct pinfo` di `proc.h`
-* Menambahkan counter `readcount` di kernel
-* Membuat dua program uji: `ptest.c` dan `rtest.c`
+### Modul 2:
+1. Tambahkan field `priority` ke `struct proc` di `proc.h`
+2. Inisialisasi `priority` di fungsi `allocproc()` pada `proc.c`
+3. Tambahkan `#define SYS_set_priority 24` di `syscall.h`
+4. Tambahkan deklarasi `int set_priority(int);` di `user.h`
+5. Tambahkan `SYSCALL(set_priority)` di `usys.S`
+6. Tambahkan `extern int sys_set_priority(void);` di `syscall.c`
+7. Tambahkan `[SYS_set_priority] sys_set_priority,` di array `syscalls[]` pada `syscall.c`
+8. Implementasikan `sys_set_priority()` di `sysproc.c`
+9. Modifikasi fungsi `scheduler()` di `proc.c` untuk memilih proses dengan `priority` terkecil
+10. Buat program uji `ptest.c`
+11. Tambahkan `_ptest` ke bagian `UPROGS` dalam `Makefile`
+12. Jalankan `make clean` dan `make qemu-nox`, lalu uji dengan `$ ptest` di shell xv6
 ---
 
 ## ✅ Uji Fungsionalitas
@@ -45,26 +47,20 @@ Tuliskan program uji apa saja yang Anda gunakan, misalnya:
 
 ## 📷 Hasil Uji
 
-Lampirkan hasil uji berupa screenshot atau output terminal. Contoh:
+ptest modul2: menguji penjadwalan berdasarkan prioritas
 
-### 📍 Contoh Output `cowtest`:
+Child 2 diberi prioritas tinggi (10)
 
-```
-Child sees: Y
-Parent sees: X
-```
+Child 1 diberi prioritas rendah (90)
 
-### 📍 Contoh Output `shmtest`:
+Diharapkan output: Child 2 selesai muncul sebelum Child 1 selesai
 
-```
-Child reads: A
-Parent reads: B
-```
-
-### 📍 Contoh Output `chmodtest`:
+### 📍 Output `ptest`:
 
 ```
-Write blocked as expected
+Child 2 selesai
+Child 1 selesai
+Parent selesai
 ```
 
 Jika ada screenshot:
@@ -77,17 +73,21 @@ Jika ada screenshot:
 
 ## ⚠️ Kendala yang Dihadapi
 
-Tuliskan kendala (jika ada), misalnya:
+1. Konflik saat menambahkan field `priority` di `struct proc` jika ada modifikasi lain sebelumnya.
+2. Lupa menginisialisasi `priority` di `allocproc()`, menyebabkan nilai sampah dan perilaku tak terduga.
+3. Nomor syscall `SYS_set_priority` berbenturan dengan syscall lain jika tidak unik.
+4. Kesalahan saat menambahkan entri syscall di `syscall.c` atau `usys.S`, sehingga syscall tidak bisa dipanggil.
+5. Validasi argumen `priority` di syscall tidak lengkap (misalnya tidak memeriksa batas 0–100).
+6. Salah logika dalam pemilihan proses di `scheduler()` (misalnya `>` bukan `<` untuk prioritas).
+7. Scheduler tetap melakukan preemptive switch karena lupa menonaktifkan preemption (misalnya tidak cukup kontrol terhadap `yield`/`timer`).
+8. Proses dengan prioritas tinggi tidak mendapat CPU jika tidak dalam kondisi RUNNABLE saat pengecekan.
+9. Lupa menambahkan program uji `ptest.c` ke `Makefile`, menyebabkan error saat build.
+10. Output `ptest` tidak sesuai karena urutan eksekusi bergantung pada race condition (misalnya proses tidak sempat set priority sebelum dijalankan).
 
-* Salah implementasi `page fault` menyebabkan panic
-* Salah memetakan alamat shared memory ke USERTOP
-* Proses biasa bisa akses audit log (belum ada validasi PID)
 
 ---
 
 ## 📚 Referensi
-
-Tuliskan sumber referensi yang Anda gunakan, misalnya:
 
 * Buku xv6 MIT: [https://pdos.csail.mit.edu/6.828/2018/xv6/book-rev11.pdf](https://pdos.csail.mit.edu/6.828/2018/xv6/book-rev11.pdf)
 * Repositori xv6-public: [https://github.com/mit-pdos/xv6-public](https://github.com/mit-pdos/xv6-public)
