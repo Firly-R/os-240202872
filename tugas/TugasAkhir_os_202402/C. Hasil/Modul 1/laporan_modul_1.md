@@ -52,7 +52,7 @@ Read Count Sebelum:  13
 
 Jika ada screenshot:
 
-```<img width="1919" height="1079" alt="modul1" src="https://github.com/user-attachments/assets/eacb07fb-c997-44f3-9a68-0bea60158a69" />
+```![Screenshot Output](/C.Hasil/Modul 1/screenshot1.png)
 
 ```
 
