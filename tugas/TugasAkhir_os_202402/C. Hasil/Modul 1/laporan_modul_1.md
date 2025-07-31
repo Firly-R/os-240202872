@@ -60,17 +60,29 @@ Jika ada screenshot:
 
 ## ⚠️ Kendala yang Dihadapi
 
-Tuliskan kendala (jika ada), misalnya:
+1. Perbedaan struktur struct pinfo antara kernel (proc.h) dan user (ptest.c) dapat menyebabkan data salah atau rusak.
 
-* Salah implementasi `page fault` menyebabkan panic
-* Salah memetakan alamat shared memory ke USERTOP
-* Proses biasa bisa akses audit log (belum ada validasi PID)
+2. ptable_lock tidak tersedia di xv6-public, sehingga perlu menggunakan ptable.lock atau mendefinisikan spinlock sendiri.
+
+3. Fungsi argptr() bisa gagal jika pointer dari user space tidak valid atau struct pinfo terlalu besar untuk dialokasikan.
+
+4. Operasi readcount++ di sys_read() tidak aman jika dipanggil oleh banyak proses secara bersamaan (race condition).
+
+5. Lupa mendaftarkan syscall baru di salah satu dari syscall.h, syscall.c, usys.S, atau user.h dapat menyebabkan error link atau syscall tidak aktif.
+
+6. Program uji (ptest dan rtest) tidak muncul di xv6 jika tidak ditambahkan ke daftar UPROGS di Makefile.
+
+7. Output ptest kosong karena proses tidak terdeteksi aktif atau pointer hasil penyalinan salah.
+
+8. Nilai readcount tidak berubah karena pemanggilan read() gagal atau counter tidak diletakkan di tempat yang benar.
+
+9. Header file yang tidak lengkap, salah include, atau duplikat dapat menyebabkan error kompilasi.
+
+10. Penggunaan safestrcpy bisa menyebabkan crash jika panjang nama proses melebihi batas buffer (16 karakter).
 
 ---
 
 ## 📚 Referensi
-
-Tuliskan sumber referensi yang Anda gunakan, misalnya:
 
 * Buku xv6 MIT: [https://pdos.csail.mit.edu/6.828/2018/xv6/book-rev11.pdf](https://pdos.csail.mit.edu/6.828/2018/xv6/book-rev11.pdf)
 * Repositori xv6-public: [https://github.com/mit-pdos/xv6-public](https://github.com/mit-pdos/xv6-public)
